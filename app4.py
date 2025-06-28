@@ -86,18 +86,15 @@ HTML_FORM = '''
   <script>
     document.getElementById('jiraForm').addEventListener('submit', async function(event) {
       event.preventDefault();
-
       const form = event.target;
       const formData = new FormData(form);
       const output = document.getElementById('output');
       output.innerHTML = '<p>Submitting...</p>';
-
       try {
         const response = await fetch('/process', {
           method: 'POST',
           body: formData
         });
-
         const result = await response.json();
         if (response.ok) {
           output.innerHTML = `
@@ -128,7 +125,7 @@ def generate_mom(meeting_text: str) -> str:
         completion = client.chat.completions.create( # type: ignore
             model="moonshot-v1-8k",
             messages=[
-                {"role": "system", "content": "You will be given a meeting transcript under the '##transcript' you will find all the conversation from the meeting that has the time stamp and who is speaking i want you to extract all the action items or issues that are discussed in the meeting that are related to the project development and also from these discussions you also need to provide the person to whom it is assigned "},
+                {"role": "system", "content": "You will be given a meeting transcript under the '##transcript'. Extract all project-related action items and assign them to the respective persons."},
                 {"role": "user", "content": meeting_text}
             ],
             temperature=0.3,
@@ -136,7 +133,7 @@ def generate_mom(meeting_text: str) -> str:
         if completion.choices and completion.choices[0].message and completion.choices[0].message.content:
             return completion.choices[0].message.content
         else:
-            raise ValueError("No content in the response from the API.")
+            raise ValueError("No content returned from LLM.")
     except Exception as e:
         raise Exception(f"Failed to generate MOM: {e}")
 
@@ -146,95 +143,58 @@ def extract_relevant_points(mom_text: str) -> list:
 
 def get_project_key_by_name(config_data, project_name):
     url = f"{config_data['jira_api_instance']}/rest/api/3/project/search"
-    headers = {
-        "Accept": "application/json",
-        "Content-Type": "application/json"
-    }
+    headers = {"Accept": "application/json", "Content-Type": "application/json"}
     auth = HTTPBasicAuth(config_data['jira_email'], config_data['jira_api_token'])
-
     response = requests.get(url, headers=headers, auth=auth)
     if response.status_code != 200:
-        raise Exception(f"Failed to fetch projects: {response.status_code} - {response.text}")
-
-    projects = response.json().get("values", [])
-    for project in projects:
+        raise Exception(f"Project fetch failed: {response.status_code}")
+    for project in response.json().get("values", []):
         if project["name"].strip().lower() == project_name.strip().lower():
             return project["key"]
-
-    raise Exception(f"Project '{project_name}' not found in Jira.")
+    raise Exception(f"Project '{project_name}' not found.")
 
 def get_account_id_by_name(config_data, assignee_name):
     url = f"{config_data['jira_api_instance']}/rest/api/3/user/search?query={assignee_name}"
-    headers = {
-        "Accept": "application/json",
-        "Content-Type": "application/json"
-    }
+    headers = {"Accept": "application/json", "Content-Type": "application/json"}
     auth = HTTPBasicAuth(config_data['jira_email'], config_data['jira_api_token'])
-
     response = requests.get(url, headers=headers, auth=auth)
-    if response.status_code != 200:
-        raise Exception(f"Failed to fetch user: {response.status_code} - {response.text}")
-
     users = response.json()
     if not users:
-        raise Exception(f"No Jira user found for name: {assignee_name}")
-
+        raise Exception(f"No user found: {assignee_name}")
     return users[0]["accountId"]
 
 def create_jira_issue(config_data, issue_data):
-    def check_issue_exists(project_key, summary):
+    def issue_exists(project_key, summary):
         url = f"{config_data['jira_api_instance']}/rest/api/3/search"
-        headers = {
-            "Accept": "application/json",
-            "Content-Type": "application/json"
-        }
+        headers = {"Accept": "application/json", "Content-Type": "application/json"}
         auth = HTTPBasicAuth(config_data['jira_email'], config_data['jira_api_token'])
-        params = {
-            "jql": f'project = "{project_key}" AND summary ~ "{summary}"'
-        }
+        params = {"jql": f'project = "{project_key}" AND summary ~ "{summary}"'}
         response = requests.get(url, headers=headers, params=params, auth=auth)
-        if response.status_code == 200:
-            return len(response.json().get("issues", [])) > 0
-        else:
-            print("Issue Already exists")
-            return False
+        return len(response.json().get("issues", [])) > 0 if response.status_code == 200 else False
 
-    if check_issue_exists(issue_data['project_key'], issue_data['summary']):
-        print(f"Issue with summary '{issue_data['summary']}' already exists. Skipping creation.")
-        return {"message": "Duplicate issue skipped", "summary": issue_data['summary']}
+    if issue_exists(issue_data['project_key'], issue_data['summary']):
+        return {"message": "Duplicate skipped", "summary": issue_data['summary']}
 
     url = f"{config_data['jira_api_instance']}/rest/api/3/issue"
-    headers = {
-        "Accept": "application/json",
-        "Content-Type": "application/json"
-    }
+    headers = {"Accept": "application/json", "Content-Type": "application/json"}
     auth = HTTPBasicAuth(config_data['jira_email'], config_data['jira_api_token'])
 
-    issue_fields = {
-        "project": {"key": issue_data['project_key']},
-        "summary": issue_data['summary'],
-        "description": {
-            "version": 1,
-            "type": "doc",
-            "content": [
-                {
-                    "type": "paragraph",
-                    "content": [{"text": issue_data['description'], "type": "text"}]
-                }
-            ]
-        },
-        "issuetype": {"name": "Task"},
-        "assignee": {"accountId": issue_data['assignee_account_id']}
+    payload = {
+        "fields": {
+            "project": {"key": issue_data['project_key']},
+            "summary": issue_data['summary'],
+            "description": {
+                "version": 1,
+                "type": "doc",
+                "content": [{"type": "paragraph", "content": [{"text": issue_data['description'], "type": "text"}]}]
+            },
+            "issuetype": {"name": "Task"},
+            "assignee": {"accountId": issue_data['assignee_account_id']}
+        }
     }
 
-    payload = {"fields": issue_fields}
     response = requests.post(url, headers=headers, json=payload, auth=auth)
-
-    if response.status_code == 201:
-        return response.json()
-    else:
-        print(f"Failed to create issue: {response.status_code} - {response.text}")
-        return {"error": f"{response.status_code} - {response.text}"}
+    return response.json() if response.status_code == 201 else {"error": f"{response.status_code} - {response.text}"}
 
 @app.route('/')
 def index():
@@ -259,7 +219,7 @@ def process():
             meeting_text = f.read()
 
         client = OpenAI(
-            api_key="sk-Lers3Q9cEM5RdbTSovjEMUe1K3qM4TOYORzFozm4ElazhKZN",
+            api_key="your_api_key_here",
             base_url="https://api.moonshot.cn/v1"
         )
 
@@ -274,15 +234,13 @@ def process():
             try:
                 account_id = get_account_id_by_name(config_data, assignee_name)
                 account_ids[assignee_name] = account_id
-
                 issue_data = {
                     "project_key": project_key,
                     "summary": f"Action Item: {description}",
                     "description": description,
                     "assignee_account_id": account_id
                 }
-                issue = create_jira_issue(config_data, issue_data)
-                created_issues.append(issue)
+                created_issues.append(create_jira_issue(config_data, issue_data))
             except Exception as e:
                 account_ids[assignee_name] = f"Error: {e}"
                 created_issues.append(f"Failed to create issue for {assignee_name}: {e}")
@@ -296,5 +254,7 @@ def process():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+# Production server binding
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
