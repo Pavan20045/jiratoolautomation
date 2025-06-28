@@ -214,7 +214,7 @@ def process():
             meeting_text = f.read()
 
         client = OpenAI(
-            api_key=os.getenv("MOONSHOT_API_KEY"),
+            api_key=os.environ["OPENAI_API_KEY"],
             base_url="https://api.moonshot.cn/v1"
         )
 
