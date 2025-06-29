@@ -1,23 +1,29 @@
 # Meeting Transcription
 
-  Meeting started: 6/23/2025, 2:42:28 PM
-  Duration: 2 minutes
+  Meeting started: 6/29/2025, 2:22:38 PM
+  Duration: 3 minutes
   Participants: PAVAN PRANEETH VARIGALA
 
-  [View original transcript](https://app.tactiq.io/api/2/u/m/r/4QD97CtYUfrfhuR0TaLm?o=txt)
+  [View original transcript](https://app.tactiq.io/api/2/u/m/r/Mqc7ERvEoESfUpqgaW8S?o=txt)
 
+    
 
+  
 
-
-
-
+  
     ## Highlights
 
-    > 01:30 PAVAN PRANEETH VARIGALA: How do you work? first each issue for today is The login form is not working, right? the second issue comes To be the. Authentication Issues. For the client. The third issue is. I am unable to enable the audio. Permissions and My Chrome Extension.
+    > 00:00 PAVAN PRANEETH VARIGALA: Hello. In this video, I will be showing you how to automatically extract action angles from the Google Meet meetings and create JIRA issues from them. Using a simple, flask application and the Tactiq ❤️ Chrome extension. First, let's go into the Tactiq ❤️ webpage and here we can see Add to Chrome button feature that enables
+> 01:03 PAVAN PRANEETH VARIGALA: Winning. We have identified a bug on the signup page when users enter invalid input. The page doesn't show any errors messages. I think you should take up this and fix the validation issues as soon as possible. And there is another issue. I think Chaitanya should take this. The backend API deployment has been delayed due to server configuration problems. I need you to
+> 03:02 PAVAN PRANEETH VARIGALA: Also the dashboard UA has some alignment issues on smaller screens. I need this to be fixed for mobile responsive. Let's assign this to vinay. Also the issue.
+> 03:13 PAVAN PRANEETH VARIGALA: Number four, we have noticed that the error locks are not being captured properly in the server, this is affecting the debugging process as time. This starts to chaitanya. There is a data synchronization issue between the user module and the reporting module, this needs to be immediate attention immediately cleared. I want this to be assigned to be 9
 
   ## Transcript
 
-  00:00 PAVAN PRANEETH VARIGALA: Hello, are you able to listen to?
-00:33 PAVAN PRANEETH VARIGALA: Hello.
-01:03 PAVAN PRANEETH VARIGALA: Is this a good time to speak? Are you noting down the time?
-01:30 PAVAN PRANEETH VARIGALA: How do you work? first each issue for today is The login form is not working Sri needs tot do it, right? the second issue comes To be the. Authentication Issues Sri should do it. For the client. The third issue is. I am unable to enable the audio. Permissions and My Chrome Extension Sri look into it.Also check for theapi calls sri.
+  00:00 PAVAN PRANEETH VARIGALA: Hello. In this video, I will be showing you how to automatically extract action angles from the Google Meet meetings and create JIRA issues from them. Using a simple, flask application and the Tactiq ❤️ Chrome extension. First, let's go into the Tactiq ❤️ webpage and here we can see Add to Chrome button feature that enables
+00:19 PAVAN PRANEETH VARIGALA: us to activate the this extension from any place. Since I have already activated. This, it's already shown in my extension list and I'm good to use it in my Gmail, Google meets. So, let's see how this meeting is how this transcription is working. As you can see, on the right side of my screen, the transcription is already taking place since I have already activated my meeting in order to demonstrate it to you. So, in order to show you my Applic, Special, What We Have developed with the team. Let's speak about a few issues so that it will be useful in the future.
+01:03 PAVAN PRANEETH VARIGALA: Vinay We have identified a bug on the signup page when users enter invalid input. The page doesn't show any errors messages. I think you should take up this and fix the validation issues as soon as possible. And there is another issue. I think Chaitanya should take this. The backend API deployment has been delayed due to server configuration problems. I need you to
+01:26 PAVAN PRANEETH VARIGALA: resolve it as soon as possible.
+03:02 PAVAN PRANEETH VARIGALA: Also the dashboard UA has some alignment issues on smaller screens. I need this to be fixed for mobile responsive. Let's assign this to vinay. 
+03:13 PAVAN PRANEETH VARIGALA: Number four, we have noticed that the error locks are not being captured properly in the server, this is affecting the debugging process as time. This task is assigned to chaitanya. There is a data synchronization issue between the user module and the reporting module, this needs to immediate attention. I want this to be assigned to vinay.
+  
