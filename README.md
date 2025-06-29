@@ -87,7 +87,6 @@ Click Submit to automatically generate and post Jira issues.
 
 - The system skips duplicate issues by checking if an issue with the same summary already exists.
 - Make sure that the assignee names in the transcript match the user names in your Jira instance.
-- This demo uses a static Moonshot API key; replace it with a secured environment key in production.
 
 ---
 
