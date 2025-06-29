@@ -46,8 +46,11 @@ Place your meeting transcript in `.txt` format using a clear speaker format and 
 
 .
 ├── app.py # Flask app handling form, processing, and Jira integration
-├── sample_transcript.txt # Sample .txt file to test the app
+|
+├── meeting.txt # meeting.txt file to test the app
+|
 ├── requirements.txt # Python dependencies
+|
 └── README.md # This documentation
 
 ## How to Run
